@@ -20,10 +20,10 @@ struct put_Thread_Parameter
 		vec_z = v_z;
 
 	}
-};//Ïß³Ì½á¹¹Ìå
+};//çº¿ç¨‹ç»“æ„ä½“
 put_Thread_Parameter ptp_array[8] = { { 1,1,1 },{ 1,1,-1 },{ 1,-1,1 },{ 1,-1,-1 },
-{ -1,1,1 },{ -1,1,-1 },{ -1,-1,1 },{ -1,-1,-1 } };    //Ïß³Ì²ÎÊı
-struct ball  //½á¹¹Ìå±íÊ¾Çò
+{ -1,1,1 },{ -1,1,-1 },{ -1,-1,1 },{ -1,-1,-1 } };    //çº¿ç¨‹å‚æ•°
+struct ball  //ç»“æ„ä½“è¡¨ç¤ºçƒ
 {
 	float x;
 	float y;
@@ -38,21 +38,21 @@ struct ball  //½á¹¹Ìå±íÊ¾Çò
 	}
 	ball(void) {};
 };
-ball Ballvec[100];           //±£´æÒÑ¾­ÓĞĞ§µÄÇò
-int current_ball = 0;        //µ±Ç°ÒÑ¾­·ÅÈëµÄballµÄÊıÄ¿
-ball maxBall_Threads(0, 0, 0, 0);    //ÓÃÓÚ¼ÇÂ¼°Ë¸öÏß³ÌÖĞµÄ×î´óÇò
-vector<ball> probably_balls;      //´æ´¢Ã¿¸öÏß³ÌÕÒµ½µÄ×î´óÇò¡£¶Ô³ÆµÄ×î´óÇò¿ÉÒÔÖ±½Ó¼ÓÈë,¼õÉÙÔËËã
+ball Ballvec[100];           //ä¿å­˜å·²ç»æœ‰æ•ˆçš„çƒ
+int current_ball = 0;        //å½“å‰å·²ç»æ”¾å…¥çš„ballçš„æ•°ç›®
+ball maxBall_Threads(0, 0, 0, 0);    //ç”¨äºè®°å½•å…«ä¸ªçº¿ç¨‹ä¸­çš„æœ€å¤§çƒ
+vector<ball> probably_balls;      //å­˜å‚¨æ¯ä¸ªçº¿ç¨‹æ‰¾åˆ°çš„æœ€å¤§çƒã€‚å¯¹ç§°çš„æœ€å¤§çƒå¯ä»¥ç›´æ¥åŠ å…¥,å‡å°‘è¿ç®—
 float sum = 0;        //sum r^3
 CRITICAL_SECTION cs;
-float inline pow2_distance(const ball& b1, const  ball& b2);  //·µ»ØÆ½·½ºóµÄÇòÖĞĞÄ¾àÀë
-bool push_block(float x, float y, float z);      //·ÅÈëblock
-bool judge(const ball& b);  //ÅĞ¶Ï¸ÃÇòÊÇ·ñºÏ·¨;
-DWORD WINAPI put_Thread(LPVOID lpt);    //·ÅÇòµÄÏß³Ìº¯Êı
-int n;                     //·ÅÖÃÇòµÄÊıÁ¿
+float inline pow2_distance(const ball& b1, const  ball& b2);  //è¿”å›å¹³æ–¹åçš„çƒä¸­å¿ƒè·ç¦»
+bool push_block(float x, float y, float z);      //æ”¾å…¥block
+bool judge(const ball& b);  //åˆ¤æ–­è¯¥çƒæ˜¯å¦åˆæ³•;
+DWORD WINAPI put_Thread(LPVOID lpt);    //æ”¾çƒçš„çº¿ç¨‹å‡½æ•°
+int n;                     //æ”¾ç½®çƒçš„æ•°é‡
 void input_n();
-int m;                     //·ÅÖÃtiny_blockµÄÊıÁ¿
+int m;                     //æ”¾ç½®tiny_blockçš„æ•°é‡
 void input_m();
-void print_result();   //´òÓ¡½á¹û
+void print_result();   //æ‰“å°ç»“æœ
 //void draw();
 int main()
 {
@@ -66,13 +66,13 @@ int main()
 		{
 			hThreads[i] = CreateThread(NULL, NULL, put_Thread, LPVOID(&ptp_array[i]), NULL, NULL);
 		}
-		//°Ë¸öÏß³Ì´ÓÕı·½ÌåµÄ°Ë¸ö¶¥µã¿ªÊ¼±éÀúËÑË÷,ËÑË÷µÄÇøÓòÎªÆğÊ¼µãµ½(0,0,0)µãµÄĞ¡Õı·½ĞÎ
+		//å…«ä¸ªçº¿ç¨‹ä»æ­£æ–¹ä½“çš„å…«ä¸ªé¡¶ç‚¹å¼€å§‹éå†æœç´¢,æœç´¢çš„åŒºåŸŸä¸ºèµ·å§‹ç‚¹åˆ°(0,0,0)ç‚¹çš„å°æ­£æ–¹å½¢
 		WaitForMultipleObjects(8, hThreads, true, INFINITE);
 		if (judge(maxBall_Threads))
 		{
 			Ballvec[current_ball++] = maxBall_Threads;
 			n--;
-			for (int i = 0; i <8; i++)   //±éÀú¿ÉÄÜµÄÇò£¬ÕÒµ½°ë¾¶ÓëÄ¿Ç°×î´óÇòµÄ°ë¾¶ÏàÍ¬µÄÇò£¬¼ÓÈëballvec
+			for (int i = 0; i <8; i++)   //éå†å¯èƒ½çš„çƒï¼Œæ‰¾åˆ°åŠå¾„ä¸ç›®å‰æœ€å¤§çƒçš„åŠå¾„ç›¸åŒçš„çƒï¼ŒåŠ å…¥ballvec
 			{
 				if (abs(maxBall_Threads.r - probably_balls[i].r)<0.0001&&judge(probably_balls[i]))
 				{
@@ -82,7 +82,7 @@ int main()
 						goto show;
 				}
 			}
-			probably_balls.clear();  //ÖØÖÃ
+			probably_balls.clear();  //é‡ç½®
 			maxBall_Threads = ball(0, 0, 0, 0);
 		}
 	}
@@ -112,7 +112,7 @@ bool push_block(float x, float y, float z)
 	return true;
 }
 
-bool judge(const ball&  b)  //ÅĞ¶Ï¸ÃÇòÊÇ·ñºÏ·¨
+bool judge(const ball&  b)  //åˆ¤æ–­è¯¥çƒæ˜¯å¦åˆæ³•
 {
 	if ((abs(b.x) + b.r)> 1 || (abs(b.y) + b.r) > 1 || (abs(b.z) + b.r)>1)
 		return false;
@@ -122,7 +122,7 @@ bool judge(const ball&  b)  //ÅĞ¶Ï¸ÃÇòÊÇ·ñºÏ·¨
 		if (pow2_distance(temp, b) < (b.r + temp.r)*(b.r + temp.r))
 			return false;
 	}
-	return true;  //·µ»ØtrueµÄÇé¿öÖ»ÓĞËùÓĞÇò¶¼ÏàÇĞ»òÕßÏàÀë
+	return true;  //è¿”å›trueçš„æƒ…å†µåªæœ‰æ‰€æœ‰çƒéƒ½ç›¸åˆ‡æˆ–è€…ç›¸ç¦»
 }
 
 DWORD WINAPI put_Thread(LPVOID lpt)
@@ -134,7 +134,7 @@ DWORD WINAPI put_Thread(LPVOID lpt)
 	ball newone((-vec_x + step*vec_x), (-vec_y + step*vec_y), (-vec_z + step*vec_z), 0);
 	ball maxBall = newone;
 	ball begin_Ball = newone;
-	while (abs(newone.x - begin_Ball.x)<(1 + step))   //¶Ôx,y,r¶¼½øĞĞÒÔstepÎª²½ÊıµÄËÑË÷£¬Ö±µ½ÓëÁ´±íÖĞµÄÇòÏàÇĞ
+	while (abs(newone.x - begin_Ball.x)<(1 + step))   //å¯¹x,y,réƒ½è¿›è¡Œä»¥stepä¸ºæ­¥æ•°çš„æœç´¢ï¼Œç›´åˆ°ä¸é“¾è¡¨ä¸­çš„çƒç›¸åˆ‡
 	{
 		newone.x += step*vec_x;
 		newone.y = -vec_y + step*vec_y;
@@ -170,45 +170,45 @@ DWORD WINAPI put_Thread(LPVOID lpt)
 }
 void input_n()
 {
-	cout << "ÊäÈë·ÅÖÃÔ²µÄÊıÁ¿" << endl;
+	cout << "è¾“å…¥æ”¾ç½®åœ†çš„æ•°é‡" << endl;
 	cin >> n;
 }
 void input_m()
 {
-	cout << "ÊäÈë·ÅÖÃtiny blocksµÄÊıÁ¿" << endl;
+	cout << "è¾“å…¥æ”¾ç½®tiny blocksçš„æ•°é‡" << endl;
 	cin >> m;
 	while (m--)
 	{
-		cout << "ÊäÈëµã×ø±ê(x,y,z)" << endl;
+		cout << "è¾“å…¥ç‚¹åæ ‡(x,y,z)" << endl;
 		float x, y, z;
 		cin >> x >> y >> z;
 		if (push_block(x, y, z) == false)
 		{
-			cout << "·Ç·¨ÖØĞÂÊäÈë" << endl;
+			cout << "éæ³•é‡æ–°è¾“å…¥" << endl;
 			m++;
 		}
 	}
 }
 void print_result()
 {
-	ofstream ofs("C:\\Users\\Áõ¾º\\Desktop\\result.dat");//±£´æµ½ÎÄ¼şÖĞ
+	ofstream ofs("C:\\Users\\Desktop\\result.dat");//ä¿å­˜åˆ°æ–‡ä»¶ä¸­
 	string result_str;
 	int j = 0;
 	for (int i = 0; i < current_ball; i++)
 	{
 		auto part = Ballvec[i];
-		if (part.r > 0)  //ÊäÈëÊ±Ö»Êä³öÇò¶ø²»Êä³öblocks
+		if (part.r > 0)  //è¾“å…¥æ—¶åªè¾“å‡ºçƒè€Œä¸è¾“å‡ºblocks
 		{
 			j++;
 			sum += part.r*part.r*part.r;
-			cout << "µÚ" << j << "¸öÇòµÄ×ø±ê(" << part.x << ", " << part.y << ", " << part.z << ") °ë¾¶:" << part.r << endl;
+			cout << "ç¬¬" << j << "ä¸ªçƒçš„åæ ‡(" << part.x << ", " << part.y << ", " << part.z << ") åŠå¾„:" << part.r << endl;
 			ofs << part.x << " ";
 			ofs << part.y << " ";
 			ofs << part.z << " ";
 			ofs << part.r << "\n";
 		}
 	}
-	cout << "sum r^3£º" << sum << endl;
+	cout << "sum r^3ï¼š" << sum << endl;
 }
 //void draw()
 //{
